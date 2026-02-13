@@ -2,6 +2,17 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// Responsive canvas
+function resizeCanvas() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+}
+
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', resizeCanvas);
+
 // Spiller
 const player = {
   x: canvas.width / 2,
@@ -47,6 +58,10 @@ function spawnTree() {
 // Input
 let keys = {};
 let lastSpace = 0;
+let mobileTouchState = {
+  leftPressed: false,
+  rightPressed: false
+};
 
 document.addEventListener('keydown', e => {
   keys[e.code] = true;
@@ -62,16 +77,58 @@ document.addEventListener('keydown', e => {
     lastSpace = now;
   }
 });
+
 document.addEventListener('keyup', e => {
   keys[e.code] = false;
 });
 
+// Mobile touch button handlers
+const leftBtn = document.getElementById('leftBtn');
+const rightBtn = document.getElementById('rightBtn');
+
+if (leftBtn) {
+  leftBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    mobileTouchState.leftPressed = true;
+  });
+  leftBtn.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    mobileTouchState.leftPressed = false;
+  });
+  leftBtn.addEventListener('mousedown', () => {
+    mobileTouchState.leftPressed = true;
+  });
+  leftBtn.addEventListener('mouseup', () => {
+    mobileTouchState.leftPressed = false;
+  });
+}
+
+if (rightBtn) {
+  rightBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    mobileTouchState.rightPressed = true;
+  });
+  rightBtn.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    mobileTouchState.rightPressed = false;
+  });
+  rightBtn.addEventListener('mousedown', () => {
+    mobileTouchState.rightPressed = true;
+  });
+  rightBtn.addEventListener('mouseup', () => {
+    mobileTouchState.rightPressed = false;
+  });
+}
+
 function updatePlayer() {
-  // Styring
-  if (keys['ArrowLeft']) {
+  // Styring - både keyboard og mobile buttons
+  const moveLeft = keys['ArrowLeft'] || mobileTouchState.leftPressed;
+  const moveRight = keys['ArrowRight'] || mobileTouchState.rightPressed;
+  
+  if (moveLeft) {
     player.dx = -6;
     player.rotation = -Math.PI / 10;
-  } else if (keys['ArrowRight']) {
+  } else if (moveRight) {
     player.dx = 6;
     player.rotation = Math.PI / 10;
   } else {
